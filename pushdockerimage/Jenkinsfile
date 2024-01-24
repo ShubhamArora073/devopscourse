@@ -1,6 +1,43 @@
+// pipeline {
+//     agent any
+//     environment{
+//         DOCKERHUB_CREDS = credentials('DockerHub')
+//     }
+//     stages {
+//         stage('Clone Repo') {
+//             steps {
+//                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/ShubhamArora073/devopscourse.git']])
+//                 sh 'ls *'
+//             }
+//         }
+//         stage('Build Image') {
+//             steps {
+//                 //sh 'docker build -t Shubhamarora073/jenkinstest ./pushdockerimage/' (this will use the tag latest)
+// 		sh 'sudo docker build -t Shubhamarora073/jenkinstest:$BUILD_NUMBER ./pushdockerimage/'
+//             }
+//         }
+//         stage('Docker Login') {
+//             steps {
+//                 //sh 'docker login -u $DOCKERHUB_CREDS_USR -p $DOCKERHUB_CREDS_PSW' (this will leave the password visible)
+//                 sh 'echo $DOCKERHUB_CREDS_PSW | sudo docker login -u $DOCKERHUB_CREDS_USR --password-stdin'                
+//                 }
+//             }
+//         stage('Docker Push') {
+//             steps {
+// 		//sh 'docker push Shubhamarora073/jenkinstest' (this will use the tag latest)    
+//                 sh 'sudo docker push Shubhamarora073/jenkinstest:$BUILD_NUMBER'
+//                 }
+//             }
+//         }
+//     post {
+// 		always {
+// 			sh 'docker logout'
+// 		}
+// 	 }
+//     }
 pipeline {
     agent any
-    environment{
+    environment {
         DOCKERHUB_CREDS = credentials('DockerHub')
     }
     stages {
@@ -12,27 +49,24 @@ pipeline {
         }
         stage('Build Image') {
             steps {
-                //sh 'docker build -t Shubhamarora073/jenkinstest ./pushdockerimage/' (this will use the tag latest)
-		sh 'sudo docker build -t Shubhamarora073/jenkinstest:$BUILD_NUMBER ./pushdockerimage/'
+                sh 'sudo docker build -t Shubhamarora073/jenkinstest:$BUILD_NUMBER ./pushdockerimage/'
             }
         }
         stage('Docker Login') {
             steps {
-                //sh 'docker login -u $DOCKERHUB_CREDS_USR -p $DOCKERHUB_CREDS_PSW' (this will leave the password visible)
-                sh 'echo $DOCKERHUB_CREDS_PSW | sudo docker login -u $DOCKERHUB_CREDS_USR --password-stdin'                
-                }
-            }
-        stage('Docker Push') {
-            steps {
-		//sh 'docker push Shubhamarora073/jenkinstest' (this will use the tag latest)    
-                sh 'sudo docker push Shubhamarora073/jenkinstest:$BUILD_NUMBER'
-                }
+                // Use echo to pass the password to sudo docker login
+                sh "echo '$DOCKERHUB_CREDS_PSW' | sudo -S docker login -u $DOCKERHUB_CREDS_USR --password-stdin"
             }
         }
-    post {
-		always {
-			sh 'docker logout'
-		}
-	 }
+        stage('Docker Push') {
+            steps {
+                sh 'sudo docker push Shubhamarora073/jenkinstest:$BUILD_NUMBER'
+            }
+        }
     }
-
+    post {
+        always {
+            sh 'sudo docker logout'
+        }
+    }
+}
