@@ -43,13 +43,13 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/ShubhamArora073/devopscourse.git']])
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/shubhamarora073/devopscourse.git']])
                 sh 'ls *'
             }
         }
         stage('Build Image') {
             steps {
-                sh 'docker build -t Shubhamarora073/jenkinstest:$BUILD_NUMBER ./pushdockerimage/'
+                sh 'docker build -t shubhamarora073/jenkinstest:$BUILD_NUMBER ./pushdockerimage/'
             }
         }
         stage('Docker Login') {
@@ -59,7 +59,7 @@ pipeline {
         }
         stage('Docker Push') {
             steps {
-                sh 'docker push Shubhamarora073/jenkinstest:$BUILD_NUMBER'
+                sh 'docker push shubhamarora073/jenkinstest:$BUILD_NUMBER'
             }
         }
     }
